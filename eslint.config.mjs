@@ -15,7 +15,7 @@ export default defineConfig([
     languageOptions: { globals: globals.browser },
   },
   {
-    ignores: ["coverage/*"],
+    ignores: ["coverage/*", "build/*", "dist/*", "node_modules/*"],
   },
   {
     settings: {
