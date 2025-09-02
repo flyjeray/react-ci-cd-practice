@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Node environment
-        uses: ./.github/workflows/reusable/setup-node-environment.yml
+        uses: ./.github/workflows/reusable/node-setup.yml
         with:
           node-version: 18
 
