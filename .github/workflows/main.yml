@@ -94,12 +94,12 @@ jobs:
 
   notify:
     name: Notify on Slack
-    needs: [build, lint, types, jest]
+    needs: [lint, types, jest]
     if: always() # This job runs regardless of the outcome of the dependent jobs
     uses: ./.github/workflows/reusable-slack-notify.yml
     with:
-      status: ${{ needs.build.result == 'success' && needs.lint.result == 'success' && needs.types.result == 'success' && needs.jest.result == 'success' && 'success' || 'failure' }}
-      title: "PR Checks ${{ needs.build.result == 'success' && needs.lint.result == 'success' && needs.types.result == 'success' && needs.jest.result == 'success' && 'Passed' || 'Failed' }}"
+      status: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') && 'failure' || 'success' }}
+      title: "PR Checks ${{ (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) && 'Failed' || 'Passed' }}"
       message: "The PR Checks workflow finished for PR #${{ github.event.pull_request.number }}. <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Click here to view the run.>"
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
