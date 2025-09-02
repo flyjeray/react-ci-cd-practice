@@ -10,6 +10,9 @@ jobs:
     name: Build React App
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - uses: ./.github/actions/setup-node
         with:
           node-version: 18
@@ -28,6 +31,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - uses: ./.github/actions/setup-node
         with:
           node-version: 18
@@ -49,6 +55,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - uses: ./.github/actions/setup-node
         with:
           node-version: 18
@@ -67,6 +76,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - uses: ./.github/actions/setup-node
         with:
           node-version: 18
