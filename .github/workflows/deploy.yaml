@@ -33,6 +33,6 @@ jobs:
     with:
       status: ${{ (contains(needs.*.result, 'failure') && 'failure') || 'success' }}
       title: "Deploy ${{ (contains(needs.*.result, 'failure') && 'Failed') || 'Successful' }}"
-      message: "The Deploy workflow finished.. <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Click here to view the run.>"
+      message: "The Deploy workflow finished. <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Click here to view the run.>"
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
