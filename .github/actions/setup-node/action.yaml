@@ -1,0 +1,58 @@
+name: "Setup Node.js with npm cache"
+description: "Setup Node.js, restore npm cache, install dependencies"
+
+inputs:
+  node-version:
+    description: "Node.js version"
+    required: true
+
+outputs:
+  cache-summary:
+    description: "Summary of npm cache hits and misses"
+    value: ${{ steps.summary.outputs.summary }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Restore npm cache
+      id: cache-npm
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        echo "Installing dependencies..."
+        npm ci --prefer-offline --json > npm-ci.log
+
+    - name: Display cache efficiency
+      id: summary
+      shell: bash
+      run: |
+        TOTAL_PACKAGES=$(jq -r '.added' npm-ci.log | tail -n 1)
+        NETWORK_FETCHES=$(grep -c 'http fetch' npm-ci.log || true)
+
+        if [[ -z "$TOTAL_PACKAGES" || "$TOTAL_PACKAGES" -eq 0 ]]; then
+          CACHE_HIT_PERCENT=100
+          SUMMARY="100% Cache Hit (0 packages to install)"
+        else
+          CACHE_HITS=$((TOTAL_PACKAGES - NETWORK_FETCHES))
+          CACHE_HIT_PERCENT=$(( (CACHE_HITS * 100) / TOTAL_PACKAGES ))
+          SUMMARY="${CACHE_HIT_PERCENT}% Cache Hit (${CACHE_HITS}/${TOTAL_PACKAGES} packages)"
+        fi
+
+        echo "Total packages: $TOTAL_PACKAGES"
+        echo "Packages from network: $NETWORK_FETCHES"
+        echo "Packages from cache: $CACHE_HITS"
+        echo "Cache efficiency: ${CACHE_HIT_PERCENT}%"
+
+        echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
