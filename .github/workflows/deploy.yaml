@@ -28,7 +28,7 @@ jobs:
   notify:
     name: Notify on Slack
     needs: [build-and-deploy]
-    if: always()
+    if: success() || failure()
     uses: ./.github/workflows/reusable-slack-notify.yml
     with:
       status: ${{ (contains(needs.*.result, 'failure') && 'failure') || 'success' }}

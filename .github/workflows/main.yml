@@ -99,7 +99,7 @@ jobs:
   notify:
     name: Notify on Slack
     needs: [lint, types, jest]
-    if: always() # This job runs regardless of the outcome of the dependent jobs
+    if: success() || failure()
     uses: ./.github/workflows/reusable-slack-notify.yml
     with:
       status: ${{ (contains(needs.*.result, 'failure') && 'failure') || 'success' }}
