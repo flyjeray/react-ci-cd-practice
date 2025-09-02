@@ -9,8 +9,7 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Node environment
-        uses: ./.github/workflows/reusable/node-setup.yml
+      - uses: ./.github/actions/setup-node
         with:
           node-version: 18
 

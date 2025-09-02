@@ -1,0 +1,37 @@
+name: "Setup Node.js with npm cache"
+description: "Checkout repo, setup Node.js, restore npm cache, install dependencies"
+
+inputs:
+  node-version:
+    description: "Node.js version"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Restore npm cache
+      id: cache-npm
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        echo "Installing dependencies..."
+        npm ci --prefer-offline --quiet | tee npm-install.log
+        echo ""
+        echo "Cache summary:"
+        grep -c "(from cache)" npm-install.log | xargs -I{} echo "From cache: {}"
+        grep -c "(cache revalidated)" npm-install.log | xargs -I{} echo "Revalidated: {}"
+        grep -c "(cache stale)" npm-install.log | xargs -I{} echo "Stale cache: {}"
