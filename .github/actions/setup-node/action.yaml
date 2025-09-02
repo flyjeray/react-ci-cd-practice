@@ -6,6 +6,11 @@ inputs:
     description: "Node.js version"
     required: true
 
+outputs:
+  cache-summary:
+    description: "Summary of npm cache hits and misses"
+    value: ${{ steps.summary.outputs.summary }}
+
 runs:
   using: "composite"
   steps:
@@ -27,9 +32,22 @@ runs:
       shell: bash
       run: |
         echo "Installing dependencies..."
-        npm ci --prefer-offline --verbose | tee npm-install.log
-        echo ""
-        echo "Cache summary:"
-        echo "From cache: $(grep -c '(from cache)' npm-install.log || true)"
-        echo "Revalidated: $(grep -c '(cache revalidated)' npm-install.log || true)"
-        echo "Stale cache: $(grep -c '(cache stale)' npm-install.log || true)"
+        npm ci --prefer-offline --verbose > npm-install.log
+
+    - name: Generate cache summary
+      id: summary
+      shell: bash
+      run: |
+        SUMMARY=$(cat <<EOF
+        Cache summary:
+        Hit: $(grep -c '(cache hit)' npm-install.log || true)
+        Miss: $(grep -c '(cache miss)' npm-install.log || true)
+        Revalidate: $(grep -c '(cache revalidated)' npm-install.log || true)
+        Update: $(grep -c '(cache updated)' npm-install.log || true)
+        Stale: $(grep -c '(cache stale)' npm-install.log || true)
+        EOF
+        )
+        echo "$SUMMARY"
+        echo "summary<<EOF" >> $GITHUB_OUTPUT
+        echo "$SUMMARY" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
