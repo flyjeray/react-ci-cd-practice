@@ -27,7 +27,7 @@ runs:
       shell: bash
       run: |
         echo "Installing dependencies..."
-        npm ci --prefer-offline --quiet | tee npm-install.log
+        npm ci --prefer-offline --verbose | tee npm-install.log
         echo ""
         echo "Cache summary:"
         echo "From cache: $(grep -c '(from cache)' npm-install.log || true)"
