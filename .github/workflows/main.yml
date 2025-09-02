@@ -104,6 +104,6 @@ jobs:
     with:
       status: ${{ contains(needs.*.result, 'failure') && 'failure' || 'success' }}
       title: "Pull Request Checks ${{ (contains(needs.*.result, 'failure') && 'Failed' || 'Passed' }}"
-      message: "Pull Request Checks workflow finished for PR #${{ github.event.pull_request.number }}. <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Click here to view the run.>"
+      message: "Pull Request Checks finished for PR #${{ github.event.pull_request.number }}. <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Click here to view the run.>"
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
