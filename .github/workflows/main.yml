@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build React App
@@ -95,11 +99,11 @@ jobs:
   notify:
     name: Notify on Slack
     needs: [lint, types, jest]
-    if: always() # This job runs regardless of the outcome of the dependent jobs
+    if: success() || failure()
     uses: ./.github/workflows/reusable-slack-notify.yml
     with:
-      status: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') && 'failure' || 'success' }}
-      title: "PR Checks ${{ (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) && 'Failed' || 'Passed' }}"
-      message: "The PR Checks workflow finished for PR #${{ github.event.pull_request.number }}. <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Click here to view the run.>"
+      status: ${{ (contains(needs.*.result, 'failure') && 'failure') || 'success' }}
+      title: "Pull Request ${{ (contains(needs.*.result, 'failure') && 'Failed') || 'Passed' }}"
+      message: "Pull Request #${{ github.event.pull_request.number }} checks have finished. <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Click here to view the run.>"
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

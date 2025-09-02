@@ -28,11 +28,11 @@ jobs:
   notify:
     name: Notify on Slack
     needs: [build-and-deploy]
-    if: always()
+    if: success() || failure()
     uses: ./.github/workflows/reusable-slack-notify.yml
     with:
-      status: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') && 'failure' || 'success' }}
-      title: "Deploy ${{ (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) && 'Failed' || 'Successful' }}"
-      message: "The Deploy workflow finished for PR #${{ github.event.pull_request.number }}. <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Click here to view the run.>"
+      status: ${{ (contains(needs.*.result, 'failure') && 'failure') || 'success' }}
+      title: "Deploy ${{ (contains(needs.*.result, 'failure') && 'Failed') || 'Successful' }}"
+      message: "The Deploy workflow finished. <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|Click here to view the run.>"
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
