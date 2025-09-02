@@ -32,17 +32,17 @@ runs:
       shell: bash
       run: |
         echo "Installing dependencies..."
-        npm ci --prefer-offline --quiet
+        npm ci --prefer-offline --timing=true
 
     - name: Generate cache summary
       id: summary
       shell: bash
       run: |
-        # The timing data is in the last file in the logs directory
-        TIMING_FILE=$(ls -t ~/.npm/_logs/*.log | head -n 1)
+        # The timing data is in the last JSON file in the logs directory
+        TIMING_FILE=$(ls -t ~/.npm/_logs/*-timing.json | head -n 1)
         if [ -f "$TIMING_FILE" ]; then
-          HITS=$(jq -r 'select(.name == "npm:load:package:content") | .["cache-hit"]' "$TIMING_FILE" | grep -c true || true)
-          MISSES=$(jq -r 'select(.name == "npm:load:package:content") | .["cache-hit"]' "$TIMING_FILE" | grep -c false || true)
+          HITS=$(jq '.timers."npm:load:package:content" | map(select(.[2]."cache-hit" == true)) | length' "$TIMING_FILE")
+          MISSES=$(jq '.timers."npm:load:package:content" | map(select(.[2]."cache-hit" == false)) | length' "$TIMING_FILE")
           SUMMARY=$(cat <<EOF
           Cache summary (from timing logs):
           Package Hits: $HITS
