@@ -17,6 +17,13 @@ export default defineConfig([
   {
     ignores: ["coverage/*"],
   },
+  {
+    settings: {
+      react: {
+        version: "detect",
+      },
+    },
+  },
   tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
 ]);
