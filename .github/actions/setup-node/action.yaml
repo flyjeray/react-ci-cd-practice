@@ -30,6 +30,6 @@ runs:
         npm ci --prefer-offline --quiet | tee npm-install.log
         echo ""
         echo "Cache summary:"
-        grep -c "(from cache)" npm-install.log | xargs -I{} echo "From cache: {}"
-        grep -c "(cache revalidated)" npm-install.log | xargs -I{} echo "Revalidated: {}"
-        grep -c "(cache stale)" npm-install.log | xargs -I{} echo "Stale cache: {}"
+        echo "From cache: $(grep -c '(from cache)' npm-install.log || true)"
+        echo "Revalidated: $(grep -c '(cache revalidated)' npm-install.log || true)"
+        echo "Stale cache: $(grep -c '(cache stale)' npm-install.log || true)"
