@@ -1,0 +1,34 @@
+name: Reusable Slack Notification
+
+on:
+  workflow_call:
+    inputs:
+      status:
+        description: "The status of the job (success or failure)"
+        required: true
+        type: string
+      title:
+        description: "The title of the Slack message"
+        required: true
+        type: string
+      message:
+        description: "The body of the Slack message"
+        required: true
+        type: string
+    secrets:
+      SLACK_WEBHOOK_URL:
+        required: true
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Slack notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: "GitHub Actions"
+          SLACK_ICON_EMOJI: ":github:"
+          SLACK_COLOR: ${{ inputs.status == 'success' && 'good' || 'danger' }}
+          SLACK_TITLE: ${{ inputs.title }}
+          SLACK_MESSAGE: ${{ inputs.message }}
