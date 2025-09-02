@@ -32,7 +32,7 @@ runs:
       shell: bash
       run: |
         echo "Installing dependencies..."
-        npm ci --prefer-offline --verbose > npm-install.log
+        npm ci --prefer-offline --verbose > npm-install.log 2>&1
 
     - name: Generate cache summary
       id: summary
