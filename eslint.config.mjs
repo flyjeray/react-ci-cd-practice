@@ -15,7 +15,14 @@ export default defineConfig([
     languageOptions: { globals: globals.browser },
   },
   {
-    ignores: ["coverage/*"],
+    ignores: ["coverage/*", "build/*", "dist/*", "node_modules/*"],
+  },
+  {
+    settings: {
+      react: {
+        version: "detect",
+      },
+    },
   },
   tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
