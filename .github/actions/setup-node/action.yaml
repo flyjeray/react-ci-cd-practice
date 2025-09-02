@@ -32,21 +32,26 @@ runs:
       shell: bash
       run: |
         echo "Installing dependencies..."
-        npm ci --prefer-offline --verbose > npm-install.log 2>&1
+        npm ci --prefer-offline --quiet
 
     - name: Generate cache summary
       id: summary
       shell: bash
       run: |
-        SUMMARY=$(cat <<EOF
-        Cache summary:
-        Hit: $(grep -c '(cache hit)' npm-install.log || true)
-        Miss: $(grep -c '(cache miss)' npm-install.log || true)
-        Revalidate: $(grep -c '(cache revalidated)' npm-install.log || true)
-        Update: $(grep -c '(cache updated)' npm-install.log || true)
-        Stale: $(grep -c '(cache stale)' npm-install.log || true)
+        # The timing data is in the last file in the logs directory
+        TIMING_FILE=$(ls -t ~/.npm/_logs/*.log | head -n 1)
+        if [ -f "$TIMING_FILE" ]; then
+          HITS=$(jq -r 'select(.name == "npm:load:package:content") | .["cache-hit"]' "$TIMING_FILE" | grep -c true || true)
+          MISSES=$(jq -r 'select(.name == "npm:load:package:content") | .["cache-hit"]' "$TIMING_FILE" | grep -c false || true)
+          SUMMARY=$(cat <<EOF
+          Cache summary (from timing logs):
+          Package Hits: $HITS
+          Package Misses: $MISSES
         EOF
-        )
+          )
+        else
+          SUMMARY="Cache summary: No timing log file found."
+        fi
         echo "$SUMMARY"
         echo "summary<<EOF" >> $GITHUB_OUTPUT
         echo "$SUMMARY" >> $GITHUB_OUTPUT
